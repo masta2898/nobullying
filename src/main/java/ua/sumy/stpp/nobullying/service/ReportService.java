@@ -13,8 +13,8 @@ public class ReportService {
 
     private final Logger log = Logger.getLogger(ReportService.class.getName());
 
-    ReportService(String databaseUrl) {
-        entityManager = Persistence.createEntityManagerFactory(databaseUrl).createEntityManager();
+    ReportService(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     Report getReportById(long id) {
