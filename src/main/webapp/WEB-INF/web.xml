@@ -66,7 +66,7 @@
 
     <error-page>
         <exception-type>404</exception-type>
-        <location>/404error.html</location>
+        <location>/html/404error.html</location>
     </error-page>
 
 </web-app>
