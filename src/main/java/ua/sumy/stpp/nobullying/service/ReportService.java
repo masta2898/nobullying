@@ -1,7 +1,6 @@
 package ua.sumy.stpp.nobullying.service;
 
 
-import ua.sumy.stpp.nobullying.model.Model;
 import ua.sumy.stpp.nobullying.model.NullModel;
 import ua.sumy.stpp.nobullying.model.Report;
 import ua.sumy.stpp.nobullying.service.error.BadReportException;
@@ -26,14 +25,21 @@ public class ReportService implements Service {
         this.entityManager = entityManager;
     }
 
-    Model getReportById(long id) {
+    Report getReportById(long id) throws ReportNotFoundException {
         Report report = null;
+
         try {
             report = entityManager.find(Report.class, id);
         } catch (Exception e) {
             log.severe(String.format("Error getting report by id (%d): %s", id, e.getMessage()));
         }
-        return (report != null) ? report : new NullModel();
+
+        if (report == null) {
+            log.warning(String.format("Report not found by id (%d)", id));
+            throw new ReportNotFoundException("Report not found!");
+        }
+
+        return report;
     }
 
     List<Report> getAllReports() {
@@ -50,13 +56,11 @@ public class ReportService implements Service {
 
     void beginModeratingReport(long id) throws BadReportException, ReportNotFoundException,
             ReportIsAlreadyModeratingException, ReportIsAlreadyFinishedException {
-        checkReportId(id);
-
-        Report report = (Report) getReportById(id);
+        Report report = getReportById(id);
         Report.ProcessingState state = report.getState();
 
         if (state == Report.ProcessingState.MODERATING) {
-            log.warning(String.format("Attempt to moderate already moderating report (%d).", id));
+            log.warning(String.format("Attempt to moderate already moderating report (%d)", id));
             throw new ReportIsAlreadyModeratingException("Report cannot be moderated twice!");
         }
 
@@ -70,9 +74,7 @@ public class ReportService implements Service {
 
     void finishModeratingReport(long id) throws BadReportException, ReportNotFoundException,
             ReportIsAlreadyFinishedException {
-        checkReportId(id);
-
-        Report report = (Report) getReportById(id);
+        Report report = getReportById(id);
         Report.ProcessingState state = report.getState();
 
         if (state == Report.ProcessingState.FINISHED) {
@@ -87,7 +89,7 @@ public class ReportService implements Service {
 
     }
 
-    void deleteReport(long id) throws BadReportException {
+    void deleteReport(long id) throws BadReportException, ReportNotFoundException {
 
     }
 
@@ -99,13 +101,6 @@ public class ReportService implements Service {
         } catch (BadReportException e) {
             log.severe(String.format("Error saving report new state (%s): %s", state, e.getMessage()));
             throw e;
-        }
-    }
-
-    private void checkReportId(long id) throws ReportNotFoundException {
-        if (getReportById(id).isNull()) {
-            log.severe(String.format("Error beginning moderating report: no report found by id %d", id));
-            throw new ReportNotFoundException("Report doesn't exist!");
         }
     }
 }

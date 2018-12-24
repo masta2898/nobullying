@@ -37,11 +37,7 @@ class ReportServiceTest {
     void getNotExistingReportById() {
         when(entityManager.find(Report.class, 1L)).thenReturn(null);
 
-        Model report = reportService.getReportById(1L);
-
-        assertNotNull(report);
-        assertTrue(report instanceof NullModel);
-        assertTrue(report.isNull());
+        assertThrows(ReportNotFoundException.class, () -> reportService.getReportById(1L));
     }
 
     @Test
@@ -51,7 +47,7 @@ class ReportServiceTest {
 
         when(entityManager.find(Report.class, 1L)).thenReturn(existingReport);
 
-        Model report = reportService.getReportById(1L);
+        Report report = assertDoesNotThrow(() -> reportService.getReportById(1L));
 
         assertNotNull(report);
         assertFalse(report.isNull());
@@ -222,7 +218,7 @@ class ReportServiceTest {
 
         when(entityManager.find(Report.class, 1L)).thenReturn(null);
 
-        assertThrows(BadReportException.class, () -> reportService.deleteReport(1L));
+        assertThrows(ReportNotFoundException.class, () -> reportService.deleteReport(1L));
     }
 
     @Test
