@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
+@NamedQuery(name = "fetchAllReports", query = "SELECT r FROM Report r")
 public class Report implements Model, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,14 +22,13 @@ public class Report implements Model, Serializable {
     private Date finishedDate;
 
     public enum ProcessingState {
-        NEW, MENTORING, FINISHED
+        NEW, MODERATING, FINISHED
     }
 
     @Enumerated
     private ProcessingState state = ProcessingState.NEW;
 
     public Report() {
-
     }
 
     public Report(String username, String text, Date sentDate) {

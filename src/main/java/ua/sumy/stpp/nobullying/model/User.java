@@ -1,9 +1,12 @@
 package ua.sumy.stpp.nobullying.model;
 
+import jdk.jfr.Name;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@NamedQuery(name = "fetchAllUsers", query = "SELECT u FROM User u")
 public class User implements Model, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
