@@ -76,12 +76,15 @@ class UserServiceTest {
 
     @Test
     void getExistingUser() {
-        User user = new User("user", "qwerty", "Simple", "User");
-        user.setId(1L);
+        User testUser = new User("user", "qwerty", "Simple", "User");
+        testUser.setId(1L);
 
-        when(entityManager.find(User.class, 1L)).thenReturn(user);
+        when(entityManager.find(User.class, 1L)).thenReturn(testUser);
 
-        assertDoesNotThrow(() -> userService.getById(1L));
+        User user = assertDoesNotThrow(() -> userService.getById(1L));
+
+        assertNotNull(user);
+        assertEquals(testUser, user);
     }
 
     @Test
