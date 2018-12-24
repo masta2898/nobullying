@@ -20,12 +20,22 @@ public class Report implements Model, Serializable {
     private Date beginMentoringDate;
     private Date finishedDate;
 
-    private enum ProcessingState {
+    public enum ProcessingState {
         NEW, MENTORING, FINISHED
     }
 
     @Enumerated
     private ProcessingState state = ProcessingState.NEW;
+
+    Report() {
+
+    }
+
+    Report(String username, String text, Date sentDate) {
+        this.username = username;
+        this.text = text;
+        this.sentDate = sentDate;
+    }
 
     public long getId() {
         return id;

@@ -17,6 +17,17 @@ public class User implements Model, Serializable {
 
     private boolean isAdmin;
 
+    User() {
+
+    }
+
+    User(String username, String password, String name, String surname) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.surname = surname;
+    }
+
     public long getId() {
         return id;
     }
