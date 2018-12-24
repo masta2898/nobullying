@@ -4,16 +4,18 @@ import ua.sumy.stpp.nobullying.model.Model;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class UserService {
+public class UserService implements Service {
     private EntityManager entityManager;
 
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
-    UserService(String databaseUrl) {
-        entityManager = Persistence.createEntityManagerFactory(databaseUrl).createEntityManager();
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     Model getUser(String login, String password) {

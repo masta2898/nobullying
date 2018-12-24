@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@NamedQuery(name = "Report.findAll", query = "SELECT r FROM Report r")
 public class Report implements Model, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

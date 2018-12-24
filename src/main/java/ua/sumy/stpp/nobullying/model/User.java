@@ -4,7 +4,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@NamedQuery(name = "User.findAll", query = "SELECT u FROM User u")
 public class User implements Model, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
