@@ -31,7 +31,7 @@ public class ReportService implements Service {
         try {
             report = entityManager.find(Report.class, id);
         } catch (Exception e) {
-            log.severe(String.format("Error getting report by id (%d): %s", id, e));
+            log.severe(String.format("Error getting report by id (%d): %s", id, e.getMessage()));
         }
         return (report != null) ? report : new NullModel();
     }
@@ -43,17 +43,14 @@ public class ReportService implements Service {
             Query namedQuery = entityManager.createNamedQuery(query);
             reports = namedQuery.getResultList();
         } catch (Exception e) {
-            log.severe(String.format("Error getting all reports by query (%s): %s", query, e));
+            log.severe(String.format("Error getting all reports by query (%s): %s", query, e.getMessage()));
         }
         return (reports != null) ? reports : new LinkedList<>();
     }
 
     void beginModeratingReport(long id) throws BadReportException, ReportNotFoundException,
             ReportIsAlreadyModeratingException, ReportIsAlreadyFinishedException {
-        if (getReportById(id).isNull()) {
-            log.severe(String.format("Error beginning moderating report: no report found by id %d", id));
-            throw new ReportNotFoundException("Report doesn't exist!");
-        }
+        checkReportId(id);
 
         Report report = (Report) getReportById(id);
         Report.ProcessingState state = report.getState();
@@ -71,7 +68,17 @@ public class ReportService implements Service {
         saveNewReportState(Report.ProcessingState.MODERATING, report);
     }
 
-    void finishModeratingReport(long id) throws ReportIsAlreadyFinishedException {
+    void finishModeratingReport(long id) throws BadReportException, ReportNotFoundException,
+            ReportIsAlreadyFinishedException {
+        checkReportId(id);
+
+        Report report = (Report) getReportById(id);
+        Report.ProcessingState state = report.getState();
+
+        if (state == Report.ProcessingState.FINISHED) {
+            log.warning(String.format("Attempt to moderate already finished report (%d)", id));
+            throw new ReportIsAlreadyFinishedException("Finished report cannot be moderated!");
+        }
 
         saveNewReportState(Report.ProcessingState.FINISHED, report);
     }
@@ -90,8 +97,15 @@ public class ReportService implements Service {
             saveReport(report);
             log.info(String.format("Began moderating report (%d)", report.getId()));
         } catch (BadReportException e) {
-            log.severe(String.format("Error saving report new state (%s): %s", state, e));
+            log.severe(String.format("Error saving report new state (%s): %s", state, e.getMessage()));
             throw e;
+        }
+    }
+
+    private void checkReportId(long id) throws ReportNotFoundException {
+        if (getReportById(id).isNull()) {
+            log.severe(String.format("Error beginning moderating report: no report found by id %d", id));
+            throw new ReportNotFoundException("Report doesn't exist!");
         }
     }
 }

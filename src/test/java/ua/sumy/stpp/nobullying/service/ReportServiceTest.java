@@ -140,6 +140,16 @@ class ReportServiceTest {
     }
 
     @Test
+    void finishModeratingNotExistingReport() {
+        Report report = new Report();
+        report.setId(1L);
+
+        when(entityManager.find(Report.class, 1L)).thenReturn(null);
+
+        assertThrows(ReportNotFoundException.class, () -> reportService.finishModeratingReport(1L));
+    }
+
+    @Test
     void finishModeratingAlreadyFinishedModeratingReport() {
         Report report = new Report();
         report.setId(1L);
