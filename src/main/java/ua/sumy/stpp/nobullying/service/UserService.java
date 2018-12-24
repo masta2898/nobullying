@@ -23,7 +23,20 @@ public class UserService implements Service {
     }
 
     User getById(long id) throws UserNotFoundException {
-        return null;
+        User user = null;
+
+        try {
+            user = entityManager.find(User.class, id);
+        } catch (Exception e) {
+            log.severe(String.format("Error getting user by id (%d): %s", id, e.getMessage()));
+        }
+
+        if (user == null) {
+            log.severe(String.format("User not found by id (%d).", id));
+            throw new UserNotFoundException("User not found!");
+        }
+
+        return user;
     }
 
     boolean verify(String login, String password) {
