@@ -1,14 +1,12 @@
 package ua.sumy.stpp.nobullying.service;
 
 import ua.sumy.stpp.nobullying.model.User;
-import ua.sumy.stpp.nobullying.service.error.UserIsAlreadyAdminException;
-import ua.sumy.stpp.nobullying.service.error.UserIsAlreadyRegisteredException;
-import ua.sumy.stpp.nobullying.service.error.UserIsNotAdminException;
-import ua.sumy.stpp.nobullying.service.error.UserNotFoundException;
+import ua.sumy.stpp.nobullying.service.error.*;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -39,16 +37,24 @@ public class UserService implements Service {
         return user;
     }
 
-    boolean verify(String login, String password) {
+    List<User> getAllUsers() {
+        List<User> users = null;
+        String query = "fetchAllUsers";
+        try {
+            Query namedQuery = entityManager.createNamedQuery(query);
+            users = namedQuery.getResultList();
+        } catch (Exception e) {
+            log.severe(String.format("Error getting all users by query (%s): %s.", query, e.getMessage()));
+        }
+        return (users != null) ? users : new LinkedList<>();
+    }
+
+    boolean verify(String login, String password) throws BadParametersException {
         return true;
     }
 
     void registerUser(String login, String password, String name, String surname)
-            throws UserIsAlreadyRegisteredException {
-    }
-
-    List<User> getAllUsers() {
-        return null;
+            throws UserIsAlreadyRegisteredException, BadReportException {
     }
 
     boolean isUserAdmin(long id) throws UserNotFoundException {

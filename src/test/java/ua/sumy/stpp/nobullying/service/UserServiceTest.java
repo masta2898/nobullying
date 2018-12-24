@@ -3,10 +3,7 @@ package ua.sumy.stpp.nobullying.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ua.sumy.stpp.nobullying.model.User;
-import ua.sumy.stpp.nobullying.service.error.UserIsAlreadyAdminException;
-import ua.sumy.stpp.nobullying.service.error.UserIsAlreadyRegisteredException;
-import ua.sumy.stpp.nobullying.service.error.UserIsNotAdminException;
-import ua.sumy.stpp.nobullying.service.error.UserNotFoundException;
+import ua.sumy.stpp.nobullying.service.error.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -51,6 +48,13 @@ class UserServiceTest {
     }
 
     @Test
+    void verifyNullCredentials() {
+        assertThrows(BadParametersException.class, () -> userService.verify(null, "qwerty"));
+        assertThrows(BadParametersException.class, () -> userService.verify("login", null));
+        assertThrows(BadParametersException.class, () -> userService.verify(null, null));
+    }
+
+    @Test
     void verifyBadCredentials() {
         String login = "admin";
         String password = "qwerty";
@@ -60,7 +64,7 @@ class UserServiceTest {
         when(entityManager.createQuery(queryText)).thenReturn(query);
         when(query.getSingleResult()).thenReturn(null);
 
-        assertFalse(userService.verify(login, password));
+        assertFalse(assertDoesNotThrow(() -> userService.verify(login, password)));
 
         verify(entityManager).createNamedQuery(queryText);
         verify(query).setParameter("login", login);
@@ -79,12 +83,22 @@ class UserServiceTest {
         when(entityManager.createQuery(queryText)).thenReturn(query);
         when(query.getSingleResult()).thenReturn(user);
 
-        assertTrue(userService.verify(login, password));
+        assertTrue(assertDoesNotThrow(() -> userService.verify(login, password)));
 
         verify(entityManager).createNamedQuery(queryText);
         verify(query).setParameter("login", login);
         verify(query).setParameter("password", password);
         verify(query).getSingleResult();
+    }
+
+    @Test
+    void registerUserWithNullCredentials() {
+        // only simple tests, without complex combinations.
+        assertThrows(BadParametersException.class, () -> userService.registerUser(null, "qwerty", "Max", "No"));
+        assertThrows(BadParametersException.class, () -> userService.registerUser("admin", null, "Max", "No"));
+        assertThrows(BadParametersException.class, () -> userService.registerUser("admin", "qwerty", null, "No"));
+        assertThrows(BadParametersException.class, () -> userService.registerUser("admin", "qwerty", "Max", null));
+        assertThrows(BadParametersException.class, () -> userService.registerUser(null, null, null, null));
     }
 
     @Test
