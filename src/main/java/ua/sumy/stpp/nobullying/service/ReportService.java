@@ -1,7 +1,5 @@
 package ua.sumy.stpp.nobullying.service;
 
-
-import ua.sumy.stpp.nobullying.model.NullModel;
 import ua.sumy.stpp.nobullying.model.Report;
 import ua.sumy.stpp.nobullying.service.error.BadReportException;
 import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyFinishedException;
@@ -9,6 +7,7 @@ import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyModeratingException;
 import ua.sumy.stpp.nobullying.service.error.ReportNotFoundException;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.LinkedList;
@@ -89,8 +88,17 @@ public class ReportService implements Service {
 
     }
 
-    void deleteReport(long id) throws BadReportException, ReportNotFoundException {
-
+    void deleteReport(long id) throws ReportNotFoundException {
+        Report report = getReportById(id);
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+        try {
+            entityTransaction.begin();
+            entityManager.remove(entityManager.merge(report));
+            entityTransaction.commit();
+        } catch (Exception e) {
+            log.severe(String.format("Rolling back due to a report (%d) delete error: %s.", id, e.getMessage()));
+            entityTransaction.rollback();
+        }
     }
 
     private void saveNewReportState(Report.ProcessingState state, Report report) throws BadReportException {
