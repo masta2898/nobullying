@@ -2,6 +2,7 @@ package ua.sumy.stpp.nobullying.service;
 
 
 import ua.sumy.stpp.nobullying.model.Model;
+import ua.sumy.stpp.nobullying.model.NullModel;
 import ua.sumy.stpp.nobullying.model.Report;
 import ua.sumy.stpp.nobullying.service.error.BadReportException;
 import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyFinishedException;
@@ -23,7 +24,8 @@ public class ReportService implements Service {
     }
 
     Model getReportById(long id) {
-        return null;
+        Report report = entityManager.find(Report.class, id);
+        return (report != null) ? report : new NullModel();
     }
 
     List<Report> getAllReports() {
