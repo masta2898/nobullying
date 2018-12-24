@@ -1,10 +1,13 @@
 package ua.sumy.stpp.nobullying.service;
 
 
+import ua.sumy.stpp.nobullying.model.Model;
 import ua.sumy.stpp.nobullying.model.Report;
+import ua.sumy.stpp.nobullying.service.error.BadReportException;
+import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyFinishedException;
+import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyModeratingException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.logging.Logger;
@@ -19,8 +22,7 @@ public class ReportService implements Service {
         this.entityManager = entityManager;
     }
 
-    Report getReportById(long id) {
-        entityManager.flush();
+    Model getReportById(long id) {
         return null;
     }
 
@@ -28,7 +30,19 @@ public class ReportService implements Service {
         return null;
     }
 
-    void saveReport(Report report) {
+    void beginModeratingReport(long id) throws ReportIsAlreadyModeratingException {
+
+    }
+
+    void finishModeratingReport(long id) throws ReportIsAlreadyFinishedException {
+
+    }
+
+    void saveReport(Report report) throws BadReportException {
+
+    }
+
+    void deleteReport(long id) throws BadReportException {
 
     }
 }
