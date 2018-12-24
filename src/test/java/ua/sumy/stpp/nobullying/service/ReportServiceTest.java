@@ -119,7 +119,7 @@ class ReportServiceTest {
 
     @Test
     void beginModerateNewReport() {
-        Report report = new Report();
+        Report report = new Report("Anonymous", "Text", new Date());
         report.setId(1L);
 
         EntityTransaction entityTransaction = mock(EntityTransaction.class);
@@ -127,12 +127,11 @@ class ReportServiceTest {
         when(entityManager.find(Report.class, 1L)).thenReturn(report);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
+        assertDoesNotThrow(() -> reportService.beginModeratingReport(1L));
+
         verify(entityTransaction).begin();
         verify(entityManager).persist(report);
         verify(entityTransaction).commit();
-        verify(entityManager).close();
-
-        assertDoesNotThrow(() -> reportService.beginModeratingReport(1L));
     }
 
     @Test
@@ -158,18 +157,19 @@ class ReportServiceTest {
 
     @Test
     void finishModeratingReport() {
-        Report report = new Report();
+        Report report = new Report("Anonymous", "Text", new Date());
+        report.setId(1L);
 
         EntityTransaction entityTransaction = mock(EntityTransaction.class);
 
+        when(entityManager.find(Report.class, 1L)).thenReturn(report);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
+
+        assertDoesNotThrow(() -> reportService.finishModeratingReport(1L));
 
         verify(entityTransaction).begin();
         verify(entityManager).persist(report);
         verify(entityTransaction).commit();
-        verify(entityManager).close();
-
-        assertDoesNotThrow(() -> reportService.finishModeratingReport(1L));
     }
 
     @Test
@@ -183,19 +183,8 @@ class ReportServiceTest {
     }
 
     @Test
-    void saveExistingReport() {
-        Date reportDate = new Date();
-        Report report = new Report("Anonymous", "Text", reportDate);
-        report.setId(1L);
-
-        when(entityManager.find(Report.class, 1L)).thenReturn(report);
-
-        assertThrows(BadReportException.class, () -> reportService.saveReport(report));
-    }
-
-    @Test
     void saveReport() {
-        Report report = new Report();
+        Report report = new Report("Anonymous", "Text", new Date());
         report.setId(1L);
 
         EntityTransaction entityTransaction = mock(EntityTransaction.class);
