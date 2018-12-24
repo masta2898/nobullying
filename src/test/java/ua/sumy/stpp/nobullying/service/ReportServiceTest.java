@@ -203,12 +203,11 @@ class ReportServiceTest {
         when(entityManager.find(Report.class, 1L)).thenReturn(null);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
+        assertDoesNotThrow(() -> reportService.saveReport(report));
+
         verify(entityTransaction).begin();
         verify(entityManager).persist(report);
         verify(entityTransaction).commit();
-        verify(entityManager).close();
-
-        assertDoesNotThrow(() -> reportService.saveReport(report));
     }
 
     @Test
@@ -231,11 +230,10 @@ class ReportServiceTest {
         when(entityManager.find(Report.class, 1L)).thenReturn(report);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
+        assertDoesNotThrow(() -> reportService.deleteReport(1L));
+
         verify(entityTransaction).begin();
         verify(entityManager).remove(entityManager.merge(report));
         verify(entityTransaction).commit();
-        verify(entityManager).close();
-
-        assertDoesNotThrow(() -> reportService.deleteReport(1L));
     }
 }
