@@ -26,13 +26,24 @@ public class ReportService implements Service {
     }
 
     Model getReportById(long id) {
-        Report report = entityManager.find(Report.class, id);
+        Report report = null;
+        try {
+            report = entityManager.find(Report.class, id);
+        } catch (Exception e) {
+            log.severe(String.format("Error getting report by id (%d): %s", id, e));
+        }
         return (report != null) ? report : new NullModel();
     }
 
     List<Report> getAllReports() {
-        Query query = entityManager.createNamedQuery("fetchAllReports");
-        List<Report> reports = query.getResultList();
+        List<Report> reports = null;
+        String query = "fetchAllReports";
+        try {
+            Query namedQuery = entityManager.createNamedQuery(query);
+            reports = namedQuery.getResultList();
+        } catch (Exception e) {
+            log.severe(String.format("Error getting all reports by query (%s): %s", query, e));
+        }
         return (reports != null) ? reports : new LinkedList<>();
     }
 
