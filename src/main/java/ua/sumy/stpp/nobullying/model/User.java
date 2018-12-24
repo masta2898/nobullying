@@ -1,7 +1,5 @@
 package ua.sumy.stpp.nobullying.model;
 
-import jdk.jfr.Name;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -12,7 +10,7 @@ public class User implements Model, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String username;
+    private String login;
     private String password;
 
     private String name;
@@ -24,8 +22,8 @@ public class User implements Model, Serializable {
 
     }
 
-    public User(String username, String password, String name, String surname) {
-        this.username = username;
+    public User(String login, String password, String name, String surname) {
+        this.login = login;
         this.password = password;
         this.name = name;
         this.surname = surname;
@@ -39,12 +37,12 @@ public class User implements Model, Serializable {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getLogin() {
+        return login;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getPassword() {
@@ -81,5 +79,10 @@ public class User implements Model, Serializable {
 
     public boolean isNull() {
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s", name, surname);
     }
 }

@@ -3,8 +3,6 @@ package ua.sumy.stpp.nobullying.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
-import ua.sumy.stpp.nobullying.model.Model;
-import ua.sumy.stpp.nobullying.model.NullModel;
 import ua.sumy.stpp.nobullying.model.Report;
 import ua.sumy.stpp.nobullying.service.error.BadReportException;
 import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyFinishedException;
