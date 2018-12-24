@@ -9,6 +9,7 @@ import ua.sumy.stpp.nobullying.model.Report;
 import ua.sumy.stpp.nobullying.service.error.BadReportException;
 import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyFinishedException;
 import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyModeratingException;
+import ua.sumy.stpp.nobullying.service.error.ReportNotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -89,6 +90,16 @@ class ReportServiceTest {
     }
 
     @Test
+    void beginModerateNotExistingReport() {
+        Report report = new Report();
+        report.setId(1L);
+
+        when(entityManager.find(Report.class, 1L)).thenReturn(null);
+
+        assertThrows(ReportNotFoundException.class, () -> reportService.beginModeratingReport(1L));
+    }
+
+    @Test
     void beginModerateAlreadyModeratingReport() {
         Report report = new Report();
         report.setId(1L);
@@ -136,7 +147,7 @@ class ReportServiceTest {
 
         when(entityManager.find(Report.class, 1L)).thenReturn(report);
 
-        assertThrows(ReportIsAlreadyFinishedException.class, () -> reportService.beginModeratingReport(1L));
+        assertThrows(ReportIsAlreadyFinishedException.class, () -> reportService.finishModeratingReport(1L));
     }
 
     @Test
