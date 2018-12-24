@@ -27,11 +27,11 @@ public class Report implements Model, Serializable {
     @Enumerated
     private ProcessingState state = ProcessingState.NEW;
 
-    Report() {
+    public Report() {
 
     }
 
-    Report(String username, String text, Date sentDate) {
+    public Report(String username, String text, Date sentDate) {
         this.username = username;
         this.text = text;
         this.sentDate = sentDate;
