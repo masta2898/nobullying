@@ -50,11 +50,13 @@ public class UserService implements Service {
     }
 
     boolean verify(String login, String password) throws BadParametersException {
+        checkParameters(login, password);
         return true;
     }
 
     void registerUser(String login, String password, String name, String surname)
-            throws UserIsAlreadyRegisteredException, BadReportException {
+            throws UserIsAlreadyRegisteredException, BadParametersException {
+        checkParameters(login, password, name, surname);
     }
 
     boolean isUserAdmin(long id) throws UserNotFoundException {
@@ -72,5 +74,14 @@ public class UserService implements Service {
 
     void deleteUser(long id) throws UserNotFoundException {
 
+    }
+
+    private void checkParameters(String...params) throws BadParametersException {
+        for (String param: params) {
+            if (param == null || param.isEmpty()) {
+                log.warning("Passed null or empty parameter to a service function.");
+                throw new BadParametersException("One of parameters is null or empty!");
+            }
+        }
     }
 }
