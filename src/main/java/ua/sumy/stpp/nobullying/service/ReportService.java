@@ -10,6 +10,8 @@ import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyModeratingException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -29,7 +31,9 @@ public class ReportService implements Service {
     }
 
     List<Report> getAllReports() {
-        return null;
+        Query query = entityManager.createNamedQuery("fetchAllReports");
+        List<Report> reports = query.getResultList();
+        return (reports != null) ? reports : new LinkedList<>();
     }
 
     void beginModeratingReport(long id) throws ReportIsAlreadyModeratingException {
