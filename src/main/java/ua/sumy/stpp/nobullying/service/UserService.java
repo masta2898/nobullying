@@ -52,7 +52,8 @@ public class UserService implements Service {
     }
 
     boolean isUserAdmin(long id) throws UserNotFoundException {
-        return false;
+        User user = getById(id);
+        return user.isAdmin();
     }
 
     void promoteUser(long id) throws UserNotFoundException, UserIsAlreadyAdminException {

@@ -31,6 +31,26 @@ class UserServiceTest {
     }
 
     @Test
+    void getNotExistingUser() {
+        when(entityManager.find(User.class, 1L)).thenReturn(null);
+
+        assertThrows(UserNotFoundException.class, () -> userService.getById(1L));
+    }
+
+    @Test
+    void getExistingUser() {
+        User testUser = new User("user", "qwerty", "Simple", "User");
+        testUser.setId(1L);
+
+        when(entityManager.find(User.class, 1L)).thenReturn(testUser);
+
+        User user = assertDoesNotThrow(() -> userService.getById(1L));
+
+        assertNotNull(user);
+        assertEquals(testUser, user);
+    }
+
+    @Test
     void verifyBadCredentials() {
         String login = "admin";
         String password = "qwerty";
@@ -65,26 +85,6 @@ class UserServiceTest {
         verify(query).setParameter("login", login);
         verify(query).setParameter("password", password);
         verify(query).getSingleResult();
-    }
-
-    @Test
-    void getNotExistingUser() {
-        when(entityManager.find(User.class, 1L)).thenReturn(null);
-
-        assertThrows(UserNotFoundException.class, () -> userService.getById(1L));
-    }
-
-    @Test
-    void getExistingUser() {
-        User testUser = new User("user", "qwerty", "Simple", "User");
-        testUser.setId(1L);
-
-        when(entityManager.find(User.class, 1L)).thenReturn(testUser);
-
-        User user = assertDoesNotThrow(() -> userService.getById(1L));
-
-        assertNotNull(user);
-        assertEquals(testUser, user);
     }
 
     @Test
