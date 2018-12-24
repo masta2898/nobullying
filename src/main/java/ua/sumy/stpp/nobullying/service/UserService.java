@@ -1,8 +1,9 @@
 package ua.sumy.stpp.nobullying.service;
 
-import ua.sumy.stpp.nobullying.model.Model;
 import ua.sumy.stpp.nobullying.model.User;
+import ua.sumy.stpp.nobullying.service.error.UserIsAlreadyAdminException;
 import ua.sumy.stpp.nobullying.service.error.UserIsAlreadyRegisteredException;
+import ua.sumy.stpp.nobullying.service.error.UserIsNotAdminException;
 import ua.sumy.stpp.nobullying.service.error.UserNotFoundException;
 
 import javax.persistence.EntityManager;
@@ -21,15 +22,19 @@ public class UserService implements Service {
         this.entityManager = entityManager;
     }
 
-    User getUser(String login, String password) throws UserNotFoundException {
+    User getById(long id) throws UserNotFoundException {
         return null;
+    }
+
+    boolean verify(String login, String password) {
+        return true;
     }
 
     void registerUser(String login, String password, String name, String surname)
             throws UserIsAlreadyRegisteredException {
     }
 
-    List<Model> getAllUsers() {
+    List<User> getAllUsers() {
         return null;
     }
 
@@ -37,11 +42,11 @@ public class UserService implements Service {
         return false;
     }
 
-    void promoteUser(long id) throws UserNotFoundException {
+    void promoteUser(long id) throws UserNotFoundException, UserIsAlreadyAdminException {
 
     }
 
-    void degradeUser(long id) throws UserNotFoundException {
+    void degradeUser(long id) throws UserNotFoundException, UserIsNotAdminException {
 
     }
 

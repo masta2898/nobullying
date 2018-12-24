@@ -16,7 +16,7 @@ public class User implements Model, Serializable {
     private String name;
     private String surname;
 
-    private boolean isAdmin;
+    private boolean isAdmin = false;
 
     public User() {
 

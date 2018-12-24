@@ -97,6 +97,7 @@ public class ReportService implements Service {
         } catch (Exception e) {
             log.severe(String.format("Rolling back due to a report (%d) saving error: %s.", id, e.getMessage()));
             entityTransaction.rollback();
+            // todo: throw exception about saving error.
         }
     }
 
@@ -111,6 +112,7 @@ public class ReportService implements Service {
         } catch (Exception e) {
             log.severe(String.format("Rolling back due to a report (%d) delete error: %s.", id, e.getMessage()));
             entityTransaction.rollback();
+            // todo: throw exception about deleting error.
         }
     }
 
@@ -122,6 +124,7 @@ public class ReportService implements Service {
         } catch (BadReportException e) {
             log.severe(String.format("Error saving report new state (%s): %s.", state, e.getMessage()));
             throw e;
+            // todo: throw exception about saving error.
         }
     }
 
