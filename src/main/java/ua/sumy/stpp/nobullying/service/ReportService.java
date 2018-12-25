@@ -1,9 +1,8 @@
 package ua.sumy.stpp.nobullying.service;
 
 import ua.sumy.stpp.nobullying.model.Report;
+import ua.sumy.stpp.nobullying.service.error.BadOperationException;
 import ua.sumy.stpp.nobullying.service.error.BadReportException;
-import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyFinishedException;
-import ua.sumy.stpp.nobullying.service.error.ReportIsAlreadyModeratingException;
 import ua.sumy.stpp.nobullying.service.error.ReportNotFoundException;
 
 import javax.persistence.EntityManager;
@@ -53,32 +52,30 @@ public class ReportService implements Service {
         return (reports != null) ? reports : new LinkedList<>();
     }
 
-    void beginModeratingReport(long id) throws BadReportException, ReportNotFoundException,
-            ReportIsAlreadyModeratingException, ReportIsAlreadyFinishedException {
+    void beginModeratingReport(long id) throws BadReportException, ReportNotFoundException, BadOperationException {
         Report report = getReportById(id);
         Report.ProcessingState state = report.getState();
 
         if (state == Report.ProcessingState.MODERATING) {
             log.warning(String.format("Attempt to moderate already moderating report (%d).", id));
-            throw new ReportIsAlreadyModeratingException("Report cannot be moderated twice!");
+            throw new BadOperationException("Report cannot be moderated twice!");
         }
 
         if (state == Report.ProcessingState.FINISHED) {
             log.warning(String.format("Attempt to moderate already finished report (%d).", id));
-            throw new ReportIsAlreadyFinishedException("Finished report cannot be moderated!");
+            throw new BadOperationException("Finished report cannot be moderated!");
         }
 
         saveNewReportState(Report.ProcessingState.MODERATING, report);
     }
 
-    void finishModeratingReport(long id) throws BadReportException, ReportNotFoundException,
-            ReportIsAlreadyFinishedException {
+    void finishModeratingReport(long id) throws BadReportException, ReportNotFoundException, BadOperationException {
         Report report = getReportById(id);
         Report.ProcessingState state = report.getState();
 
         if (state == Report.ProcessingState.FINISHED) {
             log.warning(String.format("Attempt to moderate already finished report (%d).", id));
-            throw new ReportIsAlreadyFinishedException("Finished report cannot be moderated!");
+            throw new BadOperationException("Finished report cannot be moderated!");
         }
 
         saveNewReportState(Report.ProcessingState.FINISHED, report);

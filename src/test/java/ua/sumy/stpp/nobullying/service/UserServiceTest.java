@@ -31,7 +31,7 @@ class UserServiceTest {
     void getNotExistingUser() {
         when(entityManager.find(User.class, 1L)).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class, () -> userService.getById(1L));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
     }
 
     @Test
@@ -41,7 +41,7 @@ class UserServiceTest {
 
         when(entityManager.find(User.class, 1L)).thenReturn(testUser);
 
-        User user = assertDoesNotThrow(() -> userService.getById(1L));
+        User user = assertDoesNotThrow(() -> userService.getUserById(1L));
 
         assertNotNull(user);
         assertEquals(testUser, user);
@@ -115,8 +115,7 @@ class UserServiceTest {
         when(entityManager.createQuery(queryText)).thenReturn(query);
         when(query.getSingleResult()).thenReturn(user);
 
-        assertThrows(UserIsAlreadyRegisteredException.class, () -> userService.registerUser(login, password, name,
-                surname));
+        assertThrows(BadOperationException.class, () -> userService.registerUser(login, password, name, surname));
 
         verify(entityManager).createNamedQuery(queryText);
         verify(query).setParameter("login", login);
@@ -218,7 +217,7 @@ class UserServiceTest {
 
         when(entityManager.find(User.class, 1L)).thenReturn(admin);
 
-        assertThrows(UserIsAlreadyAdminException.class, () -> userService.promoteUser(1L));
+        assertThrows(BadOperationException.class, () -> userService.promoteUser(1L));
     }
 
     @Test
@@ -231,7 +230,7 @@ class UserServiceTest {
         when(entityManager.find(User.class, 1L)).thenReturn(user);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
-        assertThrows(UserIsNotAdminException.class, () -> userService.promoteUser(1L));
+        assertThrows(BadOperationException.class, () -> userService.promoteUser(1L));
         assertTrue(user.isAdmin());
 
         verify(entityTransaction).begin();
@@ -253,7 +252,7 @@ class UserServiceTest {
 
         when(entityManager.find(User.class, 1L)).thenReturn(user);
 
-        assertThrows(UserIsNotAdminException.class, () -> userService.degradeUser(1L));
+        assertThrows(BadOperationException.class, () -> userService.degradeUser(1L));
     }
 
     @Test

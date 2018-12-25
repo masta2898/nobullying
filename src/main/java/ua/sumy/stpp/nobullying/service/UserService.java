@@ -20,7 +20,7 @@ public class UserService implements Service {
         this.entityManager = entityManager;
     }
 
-    User getById(long id) throws UserNotFoundException {
+    User getUserById(long id) throws UserNotFoundException {
         User user = null;
 
         try {
@@ -55,20 +55,25 @@ public class UserService implements Service {
     }
 
     void registerUser(String login, String password, String name, String surname)
-            throws UserIsAlreadyRegisteredException, BadParametersException {
+            throws BadOperationException, BadParametersException {
         checkParameters(login, password, name, surname);
     }
 
     boolean isUserAdmin(long id) throws UserNotFoundException {
-        User user = getById(id);
+        User user = getUserById(id);
         return user.isAdmin();
     }
 
-    void promoteUser(long id) throws UserNotFoundException, UserIsAlreadyAdminException {
+    void promoteUser(long id) throws UserNotFoundException, BadOperationException {
+        User user = getUserById(id);
 
+        if (user.isAdmin()) {
+            log.warning(String.format("Attempt to promote admin user to admin (?) by id (%d).", id));
+            throw new BadOperationException("User is already admin.");
+        }
     }
 
-    void degradeUser(long id) throws UserNotFoundException, UserIsNotAdminException {
+    void degradeUser(long id) throws UserNotFoundException, BadOperationException {
 
     }
 
