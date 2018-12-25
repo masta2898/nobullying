@@ -34,19 +34,6 @@ class ServiceUtils {
         return entityManager.find(modelClass, id);
     }
 
-    <M extends Model> boolean modelExists(Class<M> modelClass, long id) {
-        boolean result = false;
-        try {
-            M model = entityManager.find(modelClass, id);
-            if (model != null) {
-                result = true;
-            }
-        } catch (Exception e) {
-            log.warning(String.format("Error getting model by id (%d): %s.", id, e.getMessage()));
-        }
-        return result;
-    }
-
     <M extends Model> List<M> getAllModels(String query) {
         List<M> models = null;
         try {
@@ -96,6 +83,19 @@ class ServiceUtils {
             entityTransaction.rollback();
             // todo: throw exception about deleting error.
         }
+    }
+
+    private <M extends Model> boolean modelExists(Class<M> modelClass, long id) {
+        boolean result = false;
+        try {
+            M model = entityManager.find(modelClass, id);
+            if (model != null) {
+                result = true;
+            }
+        } catch (Exception e) {
+            log.warning(String.format("Error getting model by id (%d): %s.", id, e.getMessage()));
+        }
+        return result;
     }
 
     void checkParameters(Object... parameters) throws BadParametersException {
