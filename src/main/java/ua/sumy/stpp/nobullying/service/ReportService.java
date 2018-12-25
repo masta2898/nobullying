@@ -8,7 +8,7 @@ import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class ReportService {
+class ReportService {
     private final ServiceUtils serviceUtils;
     private final Logger log = Logger.getLogger(ReportService.class.getName());
 
@@ -55,12 +55,7 @@ public class ReportService {
 
     void saveReport(Report report) throws BadParametersException {
         serviceUtils.checkParameters(report);
-
-        if (report.getUsername() == null || report.getText() == null || report.getSentDate() == null) {
-            log.severe("Error saving report without username, text or sent date.");
-            throw new BadParametersException("Report has null fields!");
-        }
-
+        serviceUtils.checkParameters(report.getUsername(), report.getText(), report.getSentDate());
         serviceUtils.saveModel(report);
     }
 
