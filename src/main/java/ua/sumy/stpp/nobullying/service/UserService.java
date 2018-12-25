@@ -39,27 +39,38 @@ class UserService extends Service {
     }
 
     void promoteUser(long id) throws ModelNotFoundException, BadOperationException {
-        User user = getUserById(id);
-
-        if (user.isAdmin()) {
-            log.warning(String.format("Attempt to promote admin user to admin (?) by id (%d).", id));
-            throw new BadOperationException("User is already admin.");
-        }
-
-        user.setAdmin(true);
-        try {
-            saveModel(user);
-            log.info(String.format("User (%d) is admin now.", id));
-        } catch (BadParametersException e) {
-            log.severe(String.format("Error saving user (%d): %s", id, e.getMessage()));
-        }
+        saveNewUserPermissions(getUserById(id), true);
     }
 
     void degradeUser(long id) throws ModelNotFoundException, BadOperationException {
-
+        saveNewUserPermissions(getUserById(id), false);
     }
 
     void deleteUser(long id) throws ModelNotFoundException {
+        User user = getModelById(User.class, id);
+        try {
+            deleteModel(user);
+        } catch (BadParametersException e) {
+            log.severe(String.format("Error deleting user due it's null: %s.", e.getMessage()));
+            // todo: throw exception about error deleting user.
+        }
+    }
 
+    private void saveNewUserPermissions(User user, boolean isAdmin) throws BadOperationException {
+        long id = user.getId();
+
+        if (isAdmin == user.isAdmin()) {
+            log.warning(String.format("Attempt to apply same permissions to user by id (%d).", id));
+            throw new BadOperationException("Applying same permissions permitted.");
+        }
+
+        user.setAdmin(isAdmin);
+
+        try {
+            saveModel(user);
+            log.info(String.format("User (%d) is%s admin now.", id, (isAdmin) ? "" : "n't"));
+        } catch (BadParametersException e) {
+            log.severe(String.format("Error saving user (%d) new permissions: %s", id, e.getMessage()));
+        }
     }
 }

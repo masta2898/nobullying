@@ -229,7 +229,7 @@ class UserServiceTest {
         when(entityManager.find(User.class, 1L)).thenReturn(user);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
-        assertThrows(BadOperationException.class, () -> userService.promoteUser(1L));
+        assertDoesNotThrow(() -> userService.promoteUser(1L));
         assertTrue(user.isAdmin());
 
         verify(entityTransaction).begin();
@@ -290,7 +290,7 @@ class UserServiceTest {
         when(entityManager.find(User.class, 1L)).thenReturn(user);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
-        assertDoesNotThrow(() -> userService.degradeUser(1L));
+        assertDoesNotThrow(() -> userService.deleteUser(1L));
 
         verify(entityTransaction).begin();
         verify(entityManager).remove(entityManager.merge(user));

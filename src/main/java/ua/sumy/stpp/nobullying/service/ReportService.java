@@ -73,11 +73,12 @@ public class ReportService extends Service {
 
     private void saveNewReportState(Report.ProcessingState state, Report report) throws BadParametersException {
         report.setState(state);
+        long id = report.getId();
         try {
             saveModel(report);
-            log.info(String.format("Began moderating report (%d).", report.getId()));
+            log.info(String.format("Began moderating report (%d).", id));
         } catch (BadParametersException e) {
-            log.severe(String.format("Error saving report new state (%s): %s.", state, e.getMessage()));
+            log.severe(String.format("Error saving report (%d) new state (%s): %s.", id, state, e.getMessage()));
             throw e;
         }
     }
