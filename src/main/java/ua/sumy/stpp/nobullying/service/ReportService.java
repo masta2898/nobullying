@@ -71,10 +71,12 @@ public class ReportService {
         } catch (BadParametersException e) {
             log.severe(String.format("Error deleting report due it's null: %s", e.getMessage()));
             // todo: throw exception about error deleting report.
+        } catch (BadOperationException e) {
+            log.severe(String.format("Error deleting report due it doesn't exist by id (%d): %s.", id, e.getMessage()));
         }
     }
 
-    private void saveNewReportState(Report.ProcessingState state, Report report) throws BadParametersException {
+    private void saveNewReportState(Report.ProcessingState state, Report report) {
         report.setState(state);
         long id = report.getId();
         try {
@@ -82,7 +84,6 @@ public class ReportService {
             log.info(String.format("Began moderating report (%d).", id));
         } catch (BadParametersException e) {
             log.severe(String.format("Error saving report (%d) new state (%s): %s.", id, state, e.getMessage()));
-            throw e;
         }
     }
 }

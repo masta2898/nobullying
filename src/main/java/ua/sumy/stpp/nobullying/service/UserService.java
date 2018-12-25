@@ -53,8 +53,14 @@ class UserService {
         return result;
     }
 
-    void registerUser(String login, String password, String name, String surname) throws BadOperationException,
-            BadParametersException {
+    void registerUser(User user) throws BadOperationException, BadParametersException {
+        serviceUtils.checkParameters(user);
+
+        String login = user.getLogin();
+        String password = user.getPassword();
+        String name = user.getName();
+        String surname = user.getSurname();
+
         serviceUtils.checkParameters(login, password, name, surname);
 
         if (login.isEmpty() || password.isEmpty() || name.isEmpty() || surname.isEmpty()) {
@@ -67,7 +73,7 @@ class UserService {
             throw new BadOperationException("Registering with existing login permitted.");
         }
 
-        serviceUtils.saveModel(new User(login, password, name, surname));
+        serviceUtils.saveModel(user);
         log.info(String.format("Registered new user (%s %s (%s:%s)).", name, surname, login, password));
     }
 
@@ -91,6 +97,8 @@ class UserService {
         } catch (BadParametersException e) {
             log.severe(String.format("Error deleting user due it's null: %s.", e.getMessage()));
             // todo: throw exception about error deleting user.
+        } catch (BadOperationException e) {
+            log.severe(String.format("Error deleting user due it doesn't exist by id (%d): %s", id, e.getMessage()));
         }
     }
 
@@ -124,7 +132,7 @@ class UserService {
                 result = true;
             }
         } catch (Exception e) {
-           log.warning(String.format("Exception that should never be thrown has been thrown: %s.", e.getMessage()));
+           log.severe(String.format("Error getting user by login (%s): %s.", login, e.getMessage()));
         }
         return result;
     }

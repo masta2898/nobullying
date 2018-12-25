@@ -1,6 +1,7 @@
 package ua.sumy.stpp.nobullying.service;
 
 import ua.sumy.stpp.nobullying.model.Model;
+import ua.sumy.stpp.nobullying.service.error.BadOperationException;
 import ua.sumy.stpp.nobullying.service.error.BadParametersException;
 import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 
@@ -25,20 +26,25 @@ class ServiceUtils {
     }
 
     <M extends Model> M getModelById(Class<M> modelClass, long id) throws ModelNotFoundException {
-        M model = null;
-
-        try {
-            model = entityManager.find(modelClass, id);
-        } catch (Exception e) {
-            log.severe(String.format("Error getting model by id (%d): %s.", id, e.getMessage()));
-        }
-
-        if (model == null) {
+        if (!modelExists(modelClass, id)) {
             log.severe(String.format("Model not found by id (%d).", id));
             throw new ModelNotFoundException("Model not found!");
         }
 
-        return model;
+        return entityManager.find(modelClass, id);
+    }
+
+    <M extends Model> boolean modelExists(Class<M> modelClass, long id) {
+        boolean result = false;
+        try {
+            M model = entityManager.find(modelClass, id);
+            if (model != null) {
+                result = true;
+            }
+        } catch (Exception e) {
+            log.warning(String.format("Error getting model by id (%d): %s.", id, e.getMessage()));
+        }
+        return result;
     }
 
     <M extends Model> List<M> getAllModels(String query) {
@@ -69,9 +75,15 @@ class ServiceUtils {
         }
     }
 
-    <M extends Model> void deleteModel(M model) throws BadParametersException {
+    <M extends Model> void deleteModel(M model) throws BadParametersException, BadOperationException {
         checkParameters(model);
         long id = model.getId();
+
+        if (!modelExists(model.getClass(), id)) {
+            log.warning(String.format("Attempt to delete not existing model by id (%d).", id));
+            throw new BadOperationException("Deleting not existing model permitted.");
+        }
+
         String modelName = model.getClass().getName();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {

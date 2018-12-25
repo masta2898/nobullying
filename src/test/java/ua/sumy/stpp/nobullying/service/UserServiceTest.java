@@ -95,28 +95,24 @@ class UserServiceTest {
     @Test
     void registerUserWithNullCredentials() {
         // only simple tests, without complex combinations.
-        assertThrows(BadParametersException.class, () -> userService.registerUser(null, "qwerty", "Max", "No"));
-        assertThrows(BadParametersException.class, () -> userService.registerUser("admin", null, "Max", "No"));
-        assertThrows(BadParametersException.class, () -> userService.registerUser("admin", "qwerty", null, "No"));
-        assertThrows(BadParametersException.class, () -> userService.registerUser("admin", "qwerty", "Max", null));
-        assertThrows(BadParametersException.class, () -> userService.registerUser(null, null, null, null));
+        assertThrows(BadParametersException.class, () -> userService.registerUser(null));
+        assertThrows(BadParametersException.class, () -> userService.registerUser(new User(null, "max", "hey", "lol")));
+        assertThrows(BadParametersException.class, () -> userService.registerUser(new User(null, null, "hey", "lol")));
+        assertThrows(BadParametersException.class, () -> userService.registerUser(new User("foo", "max", null, "lol")));
     }
 
     @Test
     void registerUserWithExistingLogin() {
         String login = "admin";
-        String password = "qwerty";
-        String name = "Simple";
-        String surname = "User";
         String queryText = "SELECT u FROM User u WHERE u.login = :login";
-        User user = new User("user", "qwerty", "Simple", "User");
+        User user = new User(login, "qwerty", "Simple", "User");
         user.setId(1L);
         Query query = mock(Query.class);
 
         when(entityManager.createQuery(queryText)).thenReturn(query);
         when(query.getSingleResult()).thenReturn(user);
 
-        assertThrows(BadOperationException.class, () -> userService.registerUser(login, password, name, surname));
+        assertThrows(BadOperationException.class, () -> userService.registerUser(user));
 
         verify(entityManager).createQuery(queryText);
         verify(query).setParameter("login", login);
@@ -138,13 +134,14 @@ class UserServiceTest {
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
         when(query.getSingleResult()).thenReturn(null);
 
-        assertDoesNotThrow(() -> userService.registerUser(login, password, name, surname));
+        assertDoesNotThrow(() -> userService.registerUser(user));
 
         verify(entityManager).createQuery(queryText);
         verify(query).setParameter("login", login);
         verify(query).getSingleResult();
 
         verify(entityTransaction).begin();
+        verify(entityManager).persist(user);
         verify(entityTransaction).commit();
     }
 
