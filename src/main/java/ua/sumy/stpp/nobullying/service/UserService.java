@@ -63,7 +63,7 @@ class UserService {
         }
 
         if (isUserAlreadyRegistered(login)) {
-            log.warning(String.format("Attempt register user with existing login (%s).", login));
+            log.warning(String.format("Attempt to register user with existing login (%s).", login));
             throw new BadOperationException("Registering with existing login permitted.");
         }
 
@@ -124,7 +124,7 @@ class UserService {
                 result = true;
             }
         } catch (Exception e) {
-           // nothing to deal with, result is false by default.
+           log.warning(String.format("Exception that should never be thrown has been thrown: %s.", e.getMessage()));
         }
         return result;
     }
