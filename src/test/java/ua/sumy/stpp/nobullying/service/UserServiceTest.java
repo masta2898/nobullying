@@ -23,15 +23,14 @@ class UserServiceTest {
     @BeforeEach
     void setup() {
         entityManager = mock(EntityManager.class);
-        userService = new UserService();
-        userService.setEntityManager(entityManager);
+        userService = new UserService(entityManager);
     }
 
     @Test
     void getNotExistingUser() {
         when(entityManager.find(User.class, 1L)).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
+        assertThrows(ModelNotFoundException.class, () -> userService.getUserById(1L));
     }
 
     @Test
@@ -176,7 +175,7 @@ class UserServiceTest {
     void isNotExistingUserAdmin() {
         when(entityManager.find(User.class, 1L)).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class, () -> userService.isUserAdmin(1L));
+        assertThrows(ModelNotFoundException.class, () -> userService.isUserAdmin(1L));
     }
 
     @Test
@@ -206,7 +205,7 @@ class UserServiceTest {
     void promoteNotExistingUser() {
         when(entityManager.find(User.class, 1L)).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class, () -> userService.promoteUser(1L));
+        assertThrows(ModelNotFoundException.class, () -> userService.promoteUser(1L));
     }
 
     @Test
@@ -242,7 +241,7 @@ class UserServiceTest {
     void degradeNotExistingUser() {
         when(entityManager.find(User.class, 1L)).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class, () -> userService.degradeUser(1L));
+        assertThrows(ModelNotFoundException.class, () -> userService.degradeUser(1L));
     }
 
     @Test
@@ -278,7 +277,7 @@ class UserServiceTest {
     void deleteNotExistingUser() {
         when(entityManager.find(User.class, 1L)).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(1L));
+        assertThrows(ModelNotFoundException.class, () -> userService.deleteUser(1L));
     }
 
     @Test

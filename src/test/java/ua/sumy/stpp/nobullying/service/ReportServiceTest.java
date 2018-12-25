@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 
 import ua.sumy.stpp.nobullying.model.Report;
 import ua.sumy.stpp.nobullying.service.error.BadOperationException;
-import ua.sumy.stpp.nobullying.service.error.BadReportException;
-import ua.sumy.stpp.nobullying.service.error.ReportNotFoundException;
+import ua.sumy.stpp.nobullying.service.error.BadParametersException;
+import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -26,15 +26,14 @@ class ReportServiceTest {
     @BeforeEach
     void setup() {
         entityManager = mock(EntityManager.class);
-        reportService = new ReportService();
-        reportService.setEntityManager(entityManager);
+        reportService = new ReportService(entityManager);
     }
 
     @Test
     void getNotExistingReportById() {
         when(entityManager.find(Report.class, 1L)).thenReturn(null);
 
-        assertThrows(ReportNotFoundException.class, () -> reportService.getReportById(1L));
+        assertThrows(ModelNotFoundException.class, () -> reportService.getReportById(1L));
     }
 
     @Test
@@ -89,7 +88,7 @@ class ReportServiceTest {
 
         when(entityManager.find(Report.class, 1L)).thenReturn(null);
 
-        assertThrows(ReportNotFoundException.class, () -> reportService.beginModeratingReport(1L));
+        assertThrows(ModelNotFoundException.class, () -> reportService.beginModeratingReport(1L));
     }
 
     @Test
@@ -138,7 +137,7 @@ class ReportServiceTest {
 
         when(entityManager.find(Report.class, 1L)).thenReturn(null);
 
-        assertThrows(ReportNotFoundException.class, () -> reportService.finishModeratingReport(1L));
+        assertThrows(ModelNotFoundException.class, () -> reportService.finishModeratingReport(1L));
     }
 
     @Test
@@ -171,12 +170,12 @@ class ReportServiceTest {
 
     @Test
     void saveNullReport() {
-        assertThrows(BadReportException.class, () -> reportService.saveReport(null));
+        assertThrows(BadParametersException.class, () -> reportService.saveReport(null));
     }
 
     @Test
     void saveEmptyReport() {
-        assertThrows(BadReportException.class, () -> reportService.saveReport(new Report()));
+        assertThrows(BadParametersException.class, () -> reportService.saveReport(new Report()));
     }
 
     @Test
@@ -203,7 +202,7 @@ class ReportServiceTest {
 
         when(entityManager.find(Report.class, 1L)).thenReturn(null);
 
-        assertThrows(ReportNotFoundException.class, () -> reportService.deleteReport(1L));
+        assertThrows(ModelNotFoundException.class, () -> reportService.deleteReport(1L));
     }
 
     @Test
