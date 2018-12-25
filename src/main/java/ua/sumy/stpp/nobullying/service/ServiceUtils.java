@@ -6,8 +6,8 @@ import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 import javax.persistence.Query;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -19,6 +19,10 @@ class ServiceUtils {
 
     ServiceUtils(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    EntityManager getEntityManager() {
+        return entityManager;
     }
 
     <M extends Model> M getModelById(Class<M> modelClass, long id) throws ModelNotFoundException {
