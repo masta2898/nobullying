@@ -2,6 +2,7 @@ package ua.sumy.stpp.nobullying.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import ua.sumy.stpp.nobullying.model.User;
 import ua.sumy.stpp.nobullying.service.error.*;
 
@@ -66,7 +67,7 @@ class UserServiceTest {
 
         assertFalse(assertDoesNotThrow(() -> userService.verify(login, password)));
 
-        verify(entityManager).createNamedQuery(queryText);
+        verify(entityManager).createQuery(queryText);
         verify(query).setParameter("login", login);
         verify(query).setParameter("password", password);
     }
@@ -85,7 +86,7 @@ class UserServiceTest {
 
         assertTrue(assertDoesNotThrow(() -> userService.verify(login, password)));
 
-        verify(entityManager).createNamedQuery(queryText);
+        verify(entityManager).createQuery(queryText);
         verify(query).setParameter("login", login);
         verify(query).setParameter("password", password);
         verify(query).getSingleResult();

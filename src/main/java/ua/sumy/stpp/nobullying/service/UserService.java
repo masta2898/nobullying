@@ -3,15 +3,20 @@ package ua.sumy.stpp.nobullying.service;
 import ua.sumy.stpp.nobullying.model.User;
 import ua.sumy.stpp.nobullying.service.error.*;
 
+import javax.persistence.Query;
+import javax.persistence.EntityManager;
+
 import java.util.List;
 import java.util.logging.Logger;
 
 class UserService {
     private ServiceUtils serviceUtils;
+    private EntityManager entityManager;
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
     UserService(ServiceUtils serviceUtils) {
         this.serviceUtils = serviceUtils;
+        this.entityManager = serviceUtils.getEntityManager();
     }
 
     User getUserById(long id) throws ModelNotFoundException {
@@ -24,12 +29,35 @@ class UserService {
 
     boolean verify(String login, String password) throws BadParametersException {
         serviceUtils.checkParameters(login, password);
-        return true;
+
+        String queryText = "SELECT u FROM User u WHERE u.login = :login AND u.password = :password";
+        Query query = entityManager.createQuery(queryText);
+        query.setParameter("login", login);
+        query.setParameter("password", password);
+
+        boolean result = false;
+        try {
+            User user = (User) query.getSingleResult();
+            if (user != null) {
+                result = true;
+                log.info(String.format("Successfully verified with login (%s) and password (%s).", login, password));
+            } else {
+                log.info(String.format("Verifying with login (%s) and password (%s) wasn't successful.", login,
+                        password));
+            }
+        } catch (Exception e) {
+            log.warning(String.format("Verifying with login (%s) and password (%s) ended with error: %s", login,
+                    password, e.getMessage()));
+        }
+        return result;
     }
 
     void registerUser(String login, String password, String name, String surname) throws BadOperationException,
             BadParametersException {
         serviceUtils.checkParameters(login, password, name, surname);
+
+
+
     }
 
     boolean isUserAdmin(long id) throws ModelNotFoundException {
