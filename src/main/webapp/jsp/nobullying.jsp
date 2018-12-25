@@ -4,11 +4,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
-        <link rel="stylesheet" href="../css/bootstrap.min.css">
-        <script src="../js/bootstrap.min.js"></script>
+        <c:set var="root" value="${pageContext.request.contextPath}" />
+        <link rel="stylesheet" href="${root}/css/bootstrap.min.css">
+        <script src="${root}/js/bootstrap.min.js"></script>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     </head>
     <body>
-
+        <div class="container">
+            <p>Hello, world!</p>
+        </div>
     </body>
 </html>
 
