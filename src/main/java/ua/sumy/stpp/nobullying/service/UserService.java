@@ -8,29 +8,30 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.logging.Logger;
 
-class UserService extends Service {
+class UserService {
+    private ServiceUtils serviceUtils;
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
     UserService(EntityManager entityManager) {
-        super(entityManager);
+        this.serviceUtils = new ServiceUtils(entityManager);
     }
 
     User getUserById(long id) throws ModelNotFoundException {
-        return getModelById(User.class, id);
+        return serviceUtils.getModelById(User.class, id);
     }
 
     List<User> getAllUsers() {
-        return getAllModels("fetchAllUsers");
+        return serviceUtils.getAllModels("fetchAllUsers");
     }
 
     boolean verify(String login, String password) throws BadParametersException {
-        checkParameters(login, password);
+        serviceUtils.checkParameters(login, password);
         return true;
     }
 
     void registerUser(String login, String password, String name, String surname) throws BadOperationException,
             BadParametersException {
-        checkParameters(login, password, name, surname);
+        serviceUtils.checkParameters(login, password, name, surname);
     }
 
     boolean isUserAdmin(long id) throws ModelNotFoundException {
@@ -47,9 +48,9 @@ class UserService extends Service {
     }
 
     void deleteUser(long id) throws ModelNotFoundException {
-        User user = getModelById(User.class, id);
+        User user = serviceUtils.getModelById(User.class, id);
         try {
-            deleteModel(user);
+            serviceUtils.deleteModel(user);
         } catch (BadParametersException e) {
             log.severe(String.format("Error deleting user due it's null: %s.", e.getMessage()));
             // todo: throw exception about error deleting user.
@@ -67,7 +68,7 @@ class UserService extends Service {
         user.setAdmin(isAdmin);
 
         try {
-            saveModel(user);
+            serviceUtils.saveModel(user);
             log.info(String.format("User (%d) is%s admin now.", id, (isAdmin) ? "" : "n't"));
         } catch (BadParametersException e) {
             log.severe(String.format("Error saving user (%d) new permissions: %s", id, e.getMessage()));

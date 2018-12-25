@@ -6,24 +6,23 @@ import ua.sumy.stpp.nobullying.service.error.BadParametersException;
 import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class ReportService extends Service {
+public class ReportService {
+    private ServiceUtils serviceUtils;
     private final Logger log = Logger.getLogger(ReportService.class.getName());
 
     ReportService(EntityManager entityManager) {
-        super(entityManager);
+        this.serviceUtils = new ServiceUtils(entityManager);
     }
 
     Report getReportById(long id) throws ModelNotFoundException {
-        return getModelById(Report.class, id);
+        return serviceUtils.getModelById(Report.class, id);
     }
 
     List<Report> getAllReports() {
-        return getAllModels("fetchAllReports");
+        return serviceUtils.getAllModels("fetchAllReports");
     }
 
     void beginModeratingReport(long id) throws BadParametersException, ModelNotFoundException, BadOperationException {
@@ -56,26 +55,26 @@ public class ReportService extends Service {
     }
 
     void saveReport(Report report) throws BadParametersException {
-        checkParameters(report);
+        serviceUtils.checkParameters(report);
 
         if (report.getUsername() == null || report.getText() == null || report.getSentDate() == null) {
             log.severe("Error saving report without username, text or sent date.");
             throw new BadParametersException("Report has null fields!");
         }
 
-        saveModel(report);
+        serviceUtils.saveModel(report);
     }
 
     void deleteReport(long id) throws ModelNotFoundException, BadParametersException {
         Report report = getReportById(id);
-        deleteModel(report);
+        serviceUtils.deleteModel(report);
     }
 
     private void saveNewReportState(Report.ProcessingState state, Report report) throws BadParametersException {
         report.setState(state);
         long id = report.getId();
         try {
-            saveModel(report);
+            serviceUtils.saveModel(report);
             log.info(String.format("Began moderating report (%d).", id));
         } catch (BadParametersException e) {
             log.severe(String.format("Error saving report (%d) new state (%s): %s.", id, state, e.getMessage()));

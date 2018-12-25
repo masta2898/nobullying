@@ -11,16 +11,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-abstract class Service {
-    protected EntityManager entityManager;
+class ServiceUtils {
+    private EntityManager entityManager;
 
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
-    Service(EntityManager entityManager) {
+    ServiceUtils(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
-    protected <M extends Model> M getModelById(Class<M> modelClass, long id) throws ModelNotFoundException {
+    <M extends Model> M getModelById(Class<M> modelClass, long id) throws ModelNotFoundException {
         M model = null;
 
         try {
@@ -37,7 +37,7 @@ abstract class Service {
         return model;
     }
 
-    protected <M extends Model> List<M> getAllModels(String query) {
+    <M extends Model> List<M> getAllModels(String query) {
         List<M> models = null;
         try {
             Query namedQuery = entityManager.createNamedQuery(query);
@@ -48,7 +48,7 @@ abstract class Service {
         return (models != null) ? models : new LinkedList<>();
     }
 
-    protected <M extends Model> void saveModel(M model) throws BadParametersException {
+    <M extends Model> void saveModel(M model) throws BadParametersException {
         checkParameters(model);
         long id = model.getId();
         String modelName = model.getClass().getName();
@@ -65,7 +65,7 @@ abstract class Service {
         }
     }
 
-    protected <M extends Model> void deleteModel(M model) throws BadParametersException {
+    <M extends Model> void deleteModel(M model) throws BadParametersException {
         checkParameters(model);
         long id = model.getId();
         String modelName = model.getClass().getName();
@@ -82,7 +82,7 @@ abstract class Service {
         }
     }
 
-    protected void checkParameters(Object... parameters) throws BadParametersException {
+    void checkParameters(Object... parameters) throws BadParametersException {
         for (Object parameter: parameters) {
             if (parameter == null) {
                 log.warning("Passed null or empty parameter to a service function.");
