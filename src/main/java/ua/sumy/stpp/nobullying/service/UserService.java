@@ -3,8 +3,6 @@ package ua.sumy.stpp.nobullying.service;
 import ua.sumy.stpp.nobullying.model.User;
 import ua.sumy.stpp.nobullying.service.error.*;
 
-import javax.persistence.EntityManager;
-
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -12,8 +10,8 @@ class UserService {
     private ServiceUtils serviceUtils;
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
-    UserService(EntityManager entityManager) {
-        this.serviceUtils = new ServiceUtils(entityManager);
+    UserService(ServiceUtils serviceUtils) {
+        this.serviceUtils = serviceUtils;
     }
 
     User getUserById(long id) throws ModelNotFoundException {

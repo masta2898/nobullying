@@ -5,7 +5,6 @@ import ua.sumy.stpp.nobullying.service.error.BadOperationException;
 import ua.sumy.stpp.nobullying.service.error.BadParametersException;
 import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -13,8 +12,8 @@ public class ReportService {
     private ServiceUtils serviceUtils;
     private final Logger log = Logger.getLogger(ReportService.class.getName());
 
-    ReportService(EntityManager entityManager) {
-        this.serviceUtils = new ServiceUtils(entityManager);
+    ReportService(ServiceUtils serviceUtils) {
+        this.serviceUtils = serviceUtils;
     }
 
     Report getReportById(long id) throws ModelNotFoundException {
@@ -65,9 +64,14 @@ public class ReportService {
         serviceUtils.saveModel(report);
     }
 
-    void deleteReport(long id) throws ModelNotFoundException, BadParametersException {
+    void deleteReport(long id) throws ModelNotFoundException {
         Report report = getReportById(id);
-        serviceUtils.deleteModel(report);
+        try {
+            serviceUtils.deleteModel(report);
+        } catch (BadParametersException e) {
+            log.severe(String.format("Error deleting report due it's null: %s", e.getMessage()));
+            // todo: throw exception about error deleting report.
+        }
     }
 
     private void saveNewReportState(Report.ProcessingState state, Report report) throws BadParametersException {

@@ -23,7 +23,8 @@ class UserServiceTest {
     @BeforeEach
     void setup() {
         entityManager = mock(EntityManager.class);
-        userService = new UserService(entityManager);
+        ServiceUtils serviceUtils = new ServiceUtils(entityManager);
+        userService = new UserService(serviceUtils);
     }
 
     @Test

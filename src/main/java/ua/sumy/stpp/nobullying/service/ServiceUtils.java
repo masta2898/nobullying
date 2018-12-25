@@ -6,6 +6,7 @@ import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import javax.persistence.Query;
 import java.util.LinkedList;
 import java.util.List;
