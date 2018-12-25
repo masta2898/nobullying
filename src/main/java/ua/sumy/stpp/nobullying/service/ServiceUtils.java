@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 class ServiceUtils {
-    private EntityManager entityManager;
-
+    private final EntityManager entityManager;
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
     ServiceUtils(EntityManager entityManager) {

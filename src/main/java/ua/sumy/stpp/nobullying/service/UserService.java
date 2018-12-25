@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 class UserService {
-    private ServiceUtils serviceUtils;
-    private EntityManager entityManager;
+    private final ServiceUtils serviceUtils;
+    private final EntityManager entityManager;
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
     UserService(ServiceUtils serviceUtils) {
@@ -48,6 +48,7 @@ class UserService {
         } catch (Exception e) {
             log.warning(String.format("Verifying with login (%s) and password (%s) ended with error: %s", login,
                     password, e.getMessage()));
+            // todo: throw exception about verifying error.
         }
         return result;
     }
@@ -56,8 +57,18 @@ class UserService {
             BadParametersException {
         serviceUtils.checkParameters(login, password, name, surname);
 
+        if (login.isEmpty() || password.isEmpty() || name.isEmpty() || surname.isEmpty()) {
+            log.warning("Attempt to register user without login, password name or surname.");
+            throw new BadParametersException("Registering without login, password, name or surname permitted.");
+        }
 
+        if (isUserAlreadyRegistered(login)) {
+            log.warning(String.format("Attempt register user with existing login (%s).", login));
+            throw new BadOperationException("Registering with existing login permitted.");
+        }
 
+        serviceUtils.saveModel(new User(login, password, name, surname));
+        log.info(String.format("Registered new user (%s %s (%s:%s)).", name, surname, login, password));
     }
 
     boolean isUserAdmin(long id) throws ModelNotFoundException {
@@ -99,5 +110,22 @@ class UserService {
         } catch (BadParametersException e) {
             log.severe(String.format("Error saving user (%d) new permissions: %s", id, e.getMessage()));
         }
+    }
+
+    private boolean isUserAlreadyRegistered(String login) {
+        String queryText = "SELECT u FROM User u WHERE u.login = :login";
+        Query query = entityManager.createQuery(queryText);
+        query.setParameter("login", login);
+
+        boolean result = false;
+        try {
+            User user = (User) query.getSingleResult();
+            if (user != null) {
+                result = true;
+            }
+        } catch (Exception e) {
+           // nothing to deal with, result is false by default.
+        }
+        return result;
     }
 }

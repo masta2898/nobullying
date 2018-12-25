@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class ReportService {
-    private ServiceUtils serviceUtils;
+    private final ServiceUtils serviceUtils;
     private final Logger log = Logger.getLogger(ReportService.class.getName());
 
     ReportService(ServiceUtils serviceUtils) {

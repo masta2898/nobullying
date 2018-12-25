@@ -118,7 +118,7 @@ class UserServiceTest {
 
         assertThrows(BadOperationException.class, () -> userService.registerUser(login, password, name, surname));
 
-        verify(entityManager).createNamedQuery(queryText);
+        verify(entityManager).createQuery(queryText);
         verify(query).setParameter("login", login);
         verify(query).getSingleResult();
     }
@@ -129,17 +129,23 @@ class UserServiceTest {
         String password = "qwerty";
         String name = "Simple";
         String surname = "User";
+        User user = new User(login, password, name, surname);
         String queryText = "SELECT u FROM User u WHERE u.login = :login";
         Query query = mock(Query.class);
+        EntityTransaction entityTransaction = mock(EntityTransaction.class);
 
         when(entityManager.createQuery(queryText)).thenReturn(query);
+        when(entityManager.getTransaction()).thenReturn(entityTransaction);
         when(query.getSingleResult()).thenReturn(null);
 
         assertDoesNotThrow(() -> userService.registerUser(login, password, name, surname));
 
-        verify(entityManager).createNamedQuery(queryText);
+        verify(entityManager).createQuery(queryText);
         verify(query).setParameter("login", login);
         verify(query).getSingleResult();
+
+        verify(entityTransaction).begin();
+        verify(entityTransaction).commit();
     }
 
     @Test
