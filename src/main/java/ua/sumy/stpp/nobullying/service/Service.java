@@ -13,16 +13,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-class ServiceUtils {
+class Service {
     private final EntityManager entityManager;
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
-    ServiceUtils(EntityManager entityManager) {
+    Service(EntityManager entityManager) {
         this.entityManager = entityManager;
-    }
-
-    EntityManager getEntityManager() {
-        return entityManager;
     }
 
     <M extends Model> M getModelById(Class<M> modelClass, long id) throws ModelNotFoundException {
@@ -46,7 +42,11 @@ class ServiceUtils {
     }
 
     <M extends Model> void saveModel(M model) throws BadParametersException {
-        checkParameters(model);
+        if (anyIsNull(model)) {
+            log.warning("Attempt to save null model.");
+            throw new BadParametersException("Saving null model permitted.");
+        }
+
         long id = model.getId();
         String modelName = model.getClass().getName();
         EntityTransaction entityTransaction = entityManager.getTransaction();
@@ -63,7 +63,11 @@ class ServiceUtils {
     }
 
     <M extends Model> void deleteModel(M model) throws BadParametersException, BadOperationException {
-        checkParameters(model);
+        if (anyIsNull(model)) {
+            log.warning("Attempt to save null model.");
+            throw new BadParametersException("Deleting null model permitted.");
+        }
+
         long id = model.getId();
 
         if (!modelExists(model.getClass(), id)) {
@@ -98,12 +102,23 @@ class ServiceUtils {
         return result;
     }
 
-    void checkParameters(Object... parameters) throws BadParametersException {
+    // todo: move to another util class anyIsNull() and anyIsEmpty()
+
+    boolean anyIsNull(Object... parameters) {
         for (Object parameter: parameters) {
             if (parameter == null) {
-                log.warning("Passed null or empty parameter to a service function.");
-                throw new BadParametersException("One of parameters is null or empty!");
+                return true;
             }
         }
+        return false;
+    }
+
+    boolean anyIsEmpty(String... parameters) {
+        for (String parameter: parameters) {
+            if (parameter.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

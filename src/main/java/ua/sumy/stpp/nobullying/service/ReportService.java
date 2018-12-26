@@ -5,26 +5,28 @@ import ua.sumy.stpp.nobullying.service.error.BadOperationException;
 import ua.sumy.stpp.nobullying.service.error.BadParametersException;
 import ua.sumy.stpp.nobullying.service.error.ModelNotFoundException;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.logging.Logger;
 
-class ReportService {
-    private final ServiceUtils serviceUtils;
+class ReportService extends Service {
+    private final EntityManager entityManager;
     private final Logger log = Logger.getLogger(ReportService.class.getName());
 
-    ReportService(ServiceUtils serviceUtils) {
-        this.serviceUtils = serviceUtils;
+    ReportService(EntityManager entityManager) {
+        super(entityManager);
+        this.entityManager = entityManager;
     }
 
     Report getReportById(long id) throws ModelNotFoundException {
-        return serviceUtils.getModelById(Report.class, id);
+        return getModelById(Report.class, id);
     }
 
     List<Report> getAllReports() {
-        return serviceUtils.getAllModels("fetchAllReports");
+        return getAllModels("fetchAllReports");
     }
 
-    void beginModeratingReport(long id) throws BadParametersException, ModelNotFoundException, BadOperationException {
+    void beginModeratingReport(long id) throws ModelNotFoundException, BadOperationException {
         Report report = getReportById(id);
         Report.ProcessingState state = report.getState();
 
@@ -41,7 +43,7 @@ class ReportService {
         saveNewReportState(Report.ProcessingState.MODERATING, report);
     }
 
-    void finishModeratingReport(long id) throws BadParametersException, ModelNotFoundException, BadOperationException {
+    void finishModeratingReport(long id) throws ModelNotFoundException, BadOperationException {
         Report report = getReportById(id);
         Report.ProcessingState state = report.getState();
 
@@ -54,15 +56,24 @@ class ReportService {
     }
 
     void saveReport(Report report) throws BadParametersException {
-        serviceUtils.checkParameters(report);
-        serviceUtils.checkParameters(report.getUsername(), report.getText(), report.getSentDate());
-        serviceUtils.saveModel(report);
+        if (anyIsNull(report)) {
+            log.warning("Attempt to save null report.");
+            throw new BadParametersException("Saving null report permitted.");
+        }
+
+        if (anyIsNull(report.getUsername(), report.getText(), report.getSentDate()) ||
+                anyIsEmpty(report.getUsername(), report.getText())) {
+            log.warning("Attempt to save report without username, text or sent date.");
+            throw new BadParametersException("Saving report without username, text or sent date permitted.");
+        }
+
+        saveModel(report);
     }
 
     void deleteReport(long id) throws ModelNotFoundException {
         Report report = getReportById(id);
         try {
-            serviceUtils.deleteModel(report);
+            deleteModel(report);
         } catch (BadParametersException e) {
             log.severe(String.format("Error deleting report due it's null: %s", e.getMessage()));
             // todo: throw exception about error deleting report.
@@ -75,7 +86,7 @@ class ReportService {
         report.setState(state);
         long id = report.getId();
         try {
-            serviceUtils.saveModel(report);
+            saveModel(report);
             log.info(String.format("Began moderating report (%d).", id));
         } catch (BadParametersException e) {
             log.severe(String.format("Error saving report (%d) new state (%s): %s.", id, state, e.getMessage()));

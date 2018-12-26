@@ -22,13 +22,11 @@ import static org.mockito.Mockito.*;
 class ReportServiceTest {
     private EntityManager entityManager;
     private ReportService reportService;
-    private ServiceUtils serviceUtils;
 
     @BeforeEach
     void setup() {
         entityManager = mock(EntityManager.class);
-        serviceUtils = new ServiceUtils(entityManager);
-        reportService = new ReportService(serviceUtils);
+        reportService = new ReportService(entityManager);
     }
 
     @Test

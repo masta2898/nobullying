@@ -18,15 +18,15 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class ServiceUtilsTest {
+class ServiceTest {
     private EntityManager entityManager;
-    private ServiceUtils serviceUtils;
+    private Service service;
     private Model model;
 
     @BeforeEach
     void setup() {
         entityManager = mock(EntityManager.class);
-        serviceUtils = new ServiceUtils(entityManager);
+        service = new Service(entityManager);
 
         model = mock(Model.class);
         when(model.getId()).thenReturn(1L);
@@ -37,14 +37,14 @@ class ServiceUtilsTest {
     void getNotExistingModelById() {
         when(entityManager.find(Model.class, 1L)).thenReturn(null);
 
-        assertThrows(ModelNotFoundException.class, () -> serviceUtils.getModelById(Model.class, 1L));
+        assertThrows(ModelNotFoundException.class, () -> service.getModelById(Model.class, 1L));
     }
 
     @Test
     void getModelById() {
         when(entityManager.find(Model.class, 1L)).thenReturn(model);
 
-        assertEquals(model, assertDoesNotThrow(() -> serviceUtils.getModelById(Model.class, 1L)));
+        assertEquals(model, assertDoesNotThrow(() -> service.getModelById(Model.class, 1L)));
     }
 
     @Test
@@ -55,7 +55,7 @@ class ServiceUtilsTest {
         when(query.getResultList()).thenReturn(null);
         when(entityManager.createNamedQuery(namedQuery)).thenReturn(query);
 
-        List<Model> models = serviceUtils.getAllModels(namedQuery);
+        List<Model> models = service.getAllModels(namedQuery);
 
         assertNotNull(models);
         assertTrue(models.isEmpty());
@@ -71,7 +71,7 @@ class ServiceUtilsTest {
         when(query.getResultList()).thenReturn(testModels);
         when(entityManager.createNamedQuery(namedQuery)).thenReturn(query);
 
-        List<Model> models = serviceUtils.getAllModels(namedQuery);
+        List<Model> models = service.getAllModels(namedQuery);
 
         assertNotNull(models);
         assertEquals(testModels, models);
@@ -91,7 +91,7 @@ class ServiceUtilsTest {
 
     @Test
     void saveNullModel() {
-        assertThrows(BadParametersException.class, () -> serviceUtils.saveModel(null));
+        assertThrows(BadParametersException.class, () -> service.saveModel(null));
     }
 
     @Test
@@ -100,7 +100,7 @@ class ServiceUtilsTest {
 
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
-        assertDoesNotThrow(() -> serviceUtils.saveModel(model));
+        assertDoesNotThrow(() -> service.saveModel(model));
 
         verify(entityManager).getTransaction();
         verify(entityTransaction).begin();
@@ -110,14 +110,14 @@ class ServiceUtilsTest {
 
     @Test
     void deleteNullModel() {
-        assertThrows(BadParametersException.class, () -> serviceUtils.deleteModel(null));
+        assertThrows(BadParametersException.class, () -> service.deleteModel(null));
     }
 
     @Test
     void deleteNotExistingModel() {
         when(entityManager.find(Model.class, 1L)).thenReturn(null);
 
-        assertThrows(BadOperationException.class, () -> serviceUtils.deleteModel(model));
+        assertThrows(BadOperationException.class, () -> service.deleteModel(model));
     }
 
     @Test
@@ -129,7 +129,7 @@ class ServiceUtilsTest {
         when(entityManager.find(Model.class, 1L)).thenReturn(model);
         when(entityManager.getTransaction()).thenReturn(entityTransaction);
 
-        assertDoesNotThrow(() -> serviceUtils.deleteModel(model));
+        assertDoesNotThrow(() -> service.deleteModel(model));
 
         verify(entityManager).getTransaction();
         verify(entityTransaction).begin();

@@ -9,26 +9,28 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.logging.Logger;
 
-class UserService {
-    private final ServiceUtils serviceUtils;
+class UserService extends Service {
     private final EntityManager entityManager;
     private final Logger log = Logger.getLogger(UserService.class.getName());
 
-    UserService(ServiceUtils serviceUtils) {
-        this.serviceUtils = serviceUtils;
-        this.entityManager = serviceUtils.getEntityManager();
+    UserService(EntityManager entityManager) {
+        super(entityManager);
+        this.entityManager = entityManager;
     }
 
     User getUserById(long id) throws ModelNotFoundException {
-        return serviceUtils.getModelById(User.class, id);
+        return getModelById(User.class, id);
     }
 
     List<User> getAllUsers() {
-        return serviceUtils.getAllModels("fetchAllUsers");
+        return getAllModels("fetchAllUsers");
     }
 
     boolean verify(String login, String password) throws BadParametersException {
-        serviceUtils.checkParameters(login, password);
+        if (anyIsNull(login, password) || anyIsEmpty(login, password)) {
+            log.severe("Attempt to verify user with null or empty login or password.");
+            throw new BadParametersException("Verifying without login or password permitted.");
+        }
 
         String queryText = "SELECT u FROM User u WHERE u.login = :login AND u.password = :password";
         Query query = entityManager.createQuery(queryText);
@@ -46,7 +48,7 @@ class UserService {
                         password));
             }
         } catch (Exception e) {
-            log.warning(String.format("Verifying with login (%s) and password (%s) ended with error: %s", login,
+            log.severe(String.format("Verifying with login (%s) and password (%s) ended with error: %s", login,
                     password, e.getMessage()));
             // todo: throw exception about verifying error.
         }
@@ -54,18 +56,19 @@ class UserService {
     }
 
     void registerUser(User user) throws BadOperationException, BadParametersException {
-        serviceUtils.checkParameters(user);
+        if (anyIsNull(user)) {
+            log.warning("Attempt to register null user.");
+            throw new BadParametersException("Registering null user permitted.");
+        }
 
         String login = user.getLogin();
         String password = user.getPassword();
         String name = user.getName();
         String surname = user.getSurname();
 
-        serviceUtils.checkParameters(login, password, name, surname);
-
-        if (login.isEmpty() || password.isEmpty() || name.isEmpty() || surname.isEmpty()) {
-            log.warning("Attempt to register user without login, password name or surname.");
-            throw new BadParametersException("Registering without login, password, name or surname permitted.");
+        if (anyIsNull(login, password, name, surname) || anyIsEmpty(login, password, name, surname)) {
+            log.warning("Attempt to register user without login, password, name or surname.");
+            throw new BadParametersException("Registering user without login, password, name or surname permitted.");
         }
 
         if (isUserAlreadyRegistered(login)) {
@@ -73,7 +76,7 @@ class UserService {
             throw new BadOperationException("Registering with existing login permitted.");
         }
 
-        serviceUtils.saveModel(user);
+        saveModel(user);
         log.info(String.format("Registered new user (%s %s (%s:%s)).", name, surname, login, password));
     }
 
@@ -91,9 +94,9 @@ class UserService {
     }
 
     void deleteUser(long id) throws ModelNotFoundException {
-        User user = serviceUtils.getModelById(User.class, id);
+        User user = getModelById(User.class, id);
         try {
-            serviceUtils.deleteModel(user);
+            deleteModel(user);
         } catch (BadParametersException e) {
             log.severe(String.format("Error deleting user due it's null: %s.", e.getMessage()));
             // todo: throw exception about error deleting user.
@@ -113,7 +116,7 @@ class UserService {
         user.setAdmin(isAdmin);
 
         try {
-            serviceUtils.saveModel(user);
+            saveModel(user);
             log.info(String.format("User (%d) is%s admin now.", id, (isAdmin) ? "" : "n't"));
         } catch (BadParametersException e) {
             log.severe(String.format("Error saving user (%d) new permissions: %s", id, e.getMessage()));
